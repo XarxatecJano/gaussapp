@@ -2,7 +2,7 @@
 
 ## Tareas de Implementación
 
-- [ ] 1. Configurar estructura del proyecto y dependencias
+- [x] 1. Configurar estructura del proyecto y dependencias
   - Inicializar proyecto Node.js con estructura MVC
   - Instalar y configurar Hono framework
   - Configurar base de datos PostgreSQL
@@ -10,7 +10,7 @@
   - _Requisitos: Historia 1, 2, 3 (infraestructura base)_
 
 - [ ] 2. Implementar modelo de datos Student
-  - [ ] 2.1 Crear esquema de base de datos
+  - [x] 2.1 Crear esquema de base de datos
     - Ejecutar script SQL para crear tabla Student con todos los campos
     - Configurar índices para optimizar búsquedas por nombre y apellidos
     - _Requisitos: Historia 1, 2, 3 (estructura de datos)_

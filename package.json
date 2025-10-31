@@ -1,0 +1,38 @@
+{
+  "name": "gauss-app",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "type": "module",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec \"npm run build && npm start\" --watch src --ext ts",
+    "clean": "rm -rf dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "student-management",
+    "hono",
+    "nodejs",
+    "mvc"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "Sistema de gestión de alumnos con Node.js, Hono y PostgreSQL",
+  "dependencies": {
+    "@hono/node-server": "^1.19.5",
+    "dotenv": "^17.2.3",
+    "hono": "^4.10.4",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "@types/pg": "^8.15.6",
+    "nodemon": "^3.1.10",
+    "typescript": "^5.9.3"
+  }
+}
