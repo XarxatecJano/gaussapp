@@ -1,3 +1,8 @@
+import { IValidator } from '../validation/interfaces';
+import { ValidationError } from '../validation/ValidationError';
+import { PersonName } from '../valueObjects/PersonName';
+import { Age } from '../valueObjects/Age';
+
 export interface StudentData {
   id?: number;
   first_name: string;
@@ -29,17 +34,29 @@ export interface StudentUpdateData {
 }
 
 export class Student {
-  public id?: number;
-  public first_name: string;
-  public last_name: string;
-  public second_last_name?: string;
-  public birth_date: Date;
-  public school_name: string;
-  public enrollment_date: Date;
+  public readonly id?: number;
+  public readonly first_name: string;
+  public readonly last_name: string;
+  public readonly second_last_name?: string;
+  public readonly birth_date: Date;
+  public readonly school_name: string;
+  public readonly enrollment_date: Date;
   public withdrawal_date?: Date;
   public is_active: boolean;
 
-  constructor(data: StudentData) {
+  private readonly name: PersonName;
+  private readonly age: Age;
+
+  constructor(data: StudentData, validator?: IValidator<StudentData>) {
+    // Validar datos si se proporciona un validador
+    if (validator) {
+      const validationResult = validator.validate(data);
+      if (!validationResult.isValid) {
+        throw new ValidationError(validationResult.errors);
+      }
+    }
+
+    // Asignar propiedades
     this.id = data.id;
     this.first_name = data.first_name;
     this.last_name = data.last_name;
@@ -50,91 +67,19 @@ export class Student {
     this.withdrawal_date = data.withdrawal_date;
     this.is_active = data.is_active ?? true;
 
-    this.validate();
-  }
-
-  private validate(): void {
-    const errors: string[] = [];
-
-    // Validar campos obligatorios
-    if (!this.first_name?.trim()) {
-      errors.push('El nombre es obligatorio');
-    }
-
-    if (!this.last_name?.trim()) {
-      errors.push('El apellido es obligatorio');
-    }
-
-    if (!this.birth_date) {
-      errors.push('La fecha de nacimiento es obligatoria');
-    }
-
-    if (!this.school_name?.trim()) {
-      errors.push('El nombre del centro educativo es obligatorio');
-    }
-
-    // Validar longitudes
-    if (this.first_name && this.first_name.length > 100) {
-      errors.push('El nombre no puede exceder 100 caracteres');
-    }
-
-    if (this.last_name && this.last_name.length > 100) {
-      errors.push('El apellido no puede exceder 100 caracteres');
-    }
-
-    if (this.second_last_name && this.second_last_name.length > 100) {
-      errors.push('El segundo apellido no puede exceder 100 caracteres');
-    }
-
-    if (this.school_name && this.school_name.length > 150) {
-      errors.push('El nombre del centro educativo no puede exceder 150 caracteres');
-    }
-
-    // Validar fecha de nacimiento
-    if (this.birth_date) {
-      const today = new Date();
-      const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
-      const maxDate = new Date(today.getFullYear() - 5, today.getMonth(), today.getDate());
-
-      if (this.birth_date < minDate) {
-        errors.push('La fecha de nacimiento no puede ser anterior a 100 años');
-      }
-
-      if (this.birth_date > maxDate) {
-        errors.push('El estudiante debe tener al menos 5 años');
-      }
-    }
-
-    // Validar fechas de inscripción y baja
-    if (this.withdrawal_date && this.enrollment_date && this.withdrawal_date < this.enrollment_date) {
-      errors.push('La fecha de baja no puede ser anterior a la fecha de inscripción');
-    }
-
-    if (errors.length > 0) {
-      throw new Error(`Errores de validación: ${errors.join(', ')}`);
-    }
+    // Crear value objects
+    this.name = new PersonName(this.first_name, this.last_name, this.second_last_name);
+    this.age = new Age(this.birth_date);
   }
 
   // Método para obtener el nombre completo
   public getFullName(): string {
-    const names = [this.first_name, this.last_name];
-    if (this.second_last_name) {
-      names.push(this.second_last_name);
-    }
-    return names.join(' ');
+    return this.name.getFullName();
   }
 
   // Método para calcular la edad
   public getAge(): number {
-    const today = new Date();
-    let age = today.getFullYear() - this.birth_date.getFullYear();
-    const monthDiff = today.getMonth() - this.birth_date.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < this.birth_date.getDate())) {
-      age--;
-    }
-    
-    return age;
+    return this.age.getValue();
   }
 
   // Método para marcar como dado de baja
@@ -149,89 +94,23 @@ export class Student {
     this.withdrawal_date = undefined;
   }
 
-  // Serialización para base de datos
-  public toDatabase(): Record<string, any> {
-    return {
+
+
+  // Actualizar con datos parciales - retorna nueva instancia (inmutabilidad)
+  public update(data: StudentUpdateData, validator?: IValidator<StudentData>): Student {
+    const updatedData: StudentData = {
       id: this.id,
-      first_name: this.first_name,
-      last_name: this.last_name,
-      second_last_name: this.second_last_name || null,
-      birth_date: this.birth_date,
-      school_name: this.school_name,
+      first_name: data.first_name !== undefined ? data.first_name.trim() : this.first_name,
+      last_name: data.last_name !== undefined ? data.last_name.trim() : this.last_name,
+      second_last_name: data.second_last_name !== undefined ? data.second_last_name?.trim() : this.second_last_name,
+      birth_date: data.birth_date !== undefined ? new Date(data.birth_date) : this.birth_date,
+      school_name: data.school_name !== undefined ? data.school_name.trim() : this.school_name,
       enrollment_date: this.enrollment_date,
-      withdrawal_date: this.withdrawal_date || null,
-      is_active: this.is_active
+      withdrawal_date: data.withdrawal_date !== undefined ? 
+        (data.withdrawal_date ? new Date(data.withdrawal_date) : undefined) : this.withdrawal_date,
+      is_active: data.is_active !== undefined ? data.is_active : this.is_active
     };
-  }
 
-  // Serialización para API/JSON
-  public toJSON(): Record<string, any> {
-    return {
-      id: this.id,
-      first_name: this.first_name,
-      last_name: this.last_name,
-      second_last_name: this.second_last_name,
-      full_name: this.getFullName(),
-      birth_date: this.birth_date.toISOString().split('T')[0], // YYYY-MM-DD
-      age: this.getAge(),
-      school_name: this.school_name,
-      enrollment_date: this.enrollment_date.toISOString(),
-      withdrawal_date: this.withdrawal_date?.toISOString(),
-      is_active: this.is_active
-    };
-  }
-
-  // Deserialización desde base de datos
-  public static fromDatabase(row: any): Student {
-    return new Student({
-      id: row.id,
-      first_name: row.first_name,
-      last_name: row.last_name,
-      second_last_name: row.second_last_name,
-      birth_date: new Date(row.birth_date),
-      school_name: row.school_name,
-      enrollment_date: new Date(row.enrollment_date),
-      withdrawal_date: row.withdrawal_date ? new Date(row.withdrawal_date) : undefined,
-      is_active: row.is_active
-    });
-  }
-
-  // Crear desde datos de formulario/API
-  public static fromCreateData(data: StudentCreateData): Student {
-    return new Student({
-      first_name: data.first_name.trim(),
-      last_name: data.last_name.trim(),
-      second_last_name: data.second_last_name?.trim(),
-      birth_date: new Date(data.birth_date),
-      school_name: data.school_name.trim()
-    });
-  }
-
-  // Actualizar con datos parciales
-  public update(data: StudentUpdateData): void {
-    if (data.first_name !== undefined) {
-      this.first_name = data.first_name.trim();
-    }
-    if (data.last_name !== undefined) {
-      this.last_name = data.last_name.trim();
-    }
-    if (data.second_last_name !== undefined) {
-      this.second_last_name = data.second_last_name?.trim();
-    }
-    if (data.birth_date !== undefined) {
-      this.birth_date = new Date(data.birth_date);
-    }
-    if (data.school_name !== undefined) {
-      this.school_name = data.school_name.trim();
-    }
-    if (data.withdrawal_date !== undefined) {
-      this.withdrawal_date = data.withdrawal_date ? new Date(data.withdrawal_date) : undefined;
-    }
-    if (data.is_active !== undefined) {
-      this.is_active = data.is_active;
-    }
-
-    // Revalidar después de la actualización
-    this.validate();
+    return new Student(updatedData, validator);
   }
 }
