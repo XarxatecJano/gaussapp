@@ -15,7 +15,7 @@
     - Configurar índices para optimizar búsquedas por nombre y apellidos
     - _Requisitos: Historia 1, 2, 3 (estructura de datos)_
   
-  - [ ] 2.2 Implementar modelo Student en Node.js
+  - [x] 2.2 Implementar modelo Student en Node.js
     - Crear clase/interfaz Student con validaciones
     - Implementar métodos de serialización/deserialización
     - Validar campos obligatorios (first_name, last_name, birth_date, school_name)
