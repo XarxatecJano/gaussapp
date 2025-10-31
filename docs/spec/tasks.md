@@ -21,13 +21,13 @@
     - Validar campos obligatorios (first_name, last_name, birth_date, school_name)
     - _Requisitos: Historia 1 (validación de datos de alta)_
   
-  - [ ]* 2.3 Escribir pruebas unitarias para el modelo Student
+  - [x]* 2.3 Escribir pruebas unitarias para el modelo Student
     - Crear tests para validaciones de campos
     - Probar serialización/deserialización de datos
     - _Requisitos: Estrategia de pruebas_
 
 - [ ] 3. Implementar capa de acceso a datos (Repository)
-  - [ ] 3.1 Crear StudentRepository con operaciones CRUD
+  - [x] 3.1 Crear StudentRepository con operaciones CRUD
     - Implementar método create() para dar de alta estudiantes
     - Implementar método findByName() para búsqueda por nombre y apellidos
     - Implementar método findById() para obtener estudiante por ID
