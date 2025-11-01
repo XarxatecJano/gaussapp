@@ -17,3 +17,12 @@ export { ApiStudentSerializer, ApiStudentResponse } from './serializers/ApiStude
 
 // Factories
 export { StudentFactory } from './factories/StudentFactory';
+
+// Repositories
+export { IRepository, IStudentRepository } from './repositories/interfaces';
+export { StudentRepository } from './repositories/StudentRepository';
+export { RepositoryFactory } from './repositories/RepositoryFactory';
+
+// Infrastructure
+export { IDatabaseConnection } from './infrastructure/interfaces';
+export { PostgreSQLConnection } from './infrastructure/PostgreSQLConnection';
