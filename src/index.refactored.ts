@@ -26,3 +26,8 @@ export { RepositoryFactory } from './repositories/RepositoryFactory';
 // Infrastructure
 export { IDatabaseConnection } from './infrastructure/interfaces';
 export { PostgreSQLConnection } from './infrastructure/PostgreSQLConnection';
+
+// Services
+export { IStudentService, StudentNotFoundError, StudentAlreadyInactiveError, DuplicateStudentError } from './services/interfaces';
+export { StudentService } from './services/StudentService';
+export { ServiceFactory } from './services/ServiceFactory';

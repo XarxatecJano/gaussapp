@@ -12,4 +12,7 @@ export interface IStudentRepository extends IRepository<Student, number> {
   findByName(firstName: string, lastName: string): Promise<Student[]>;
   findActiveStudents(): Promise<Student[]>;
   softDelete(id: number): Promise<boolean>;
+  countActiveStudents(): Promise<number>;
+  findBySchool(schoolName: string): Promise<Student[]>;
+  findByAgeRange(minAge: number, maxAge: number): Promise<Student[]>;
 }
